@@ -20,7 +20,6 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationClientOption.AMapLocationMode
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.location.AMapLocationQualityReport
-import com.amap.api.maps.MapsInitializer
 import com.example.gpstracker.screens.LocationTrackingScreen
 import com.example.gpstracker.utils.Constant.REQUEST_CODE_LOCATION_SETTINGS
 import com.example.gpstracker.utils.LocationItem
@@ -40,9 +39,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Update the privacy policy
+        AMapLocationClient.updatePrivacyShow(applicationContext, true, true)
+        AMapLocationClient.updatePrivacyAgree(applicationContext, true)
+
+        // Create a new AMapLocationClient instance
+        locationClient = AMapLocationClient(this)
+
+
+
+        /*// Set the AMapLocationClientOption parameters
+        val locationOption = AMapLocationClientOption()
+        locationOption.locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
+        locationOption.isOnceLocation = true
+        locationClient!!.setLocationOption(locationOption)
+
+
+        locationClient!!.setLocationListener(locationListener)
+        // Start location updates
+        locationClient!!.startLocation()*/
         //Todo
-        MapsInitializer.updatePrivacyShow(this, true, true)
-        MapsInitializer.updatePrivacyAgree(this, true)
+        /*MapsInitializer.updatePrivacyShow(this, true, true)
+        MapsInitializer.updatePrivacyAgree(this, true)*/
 
         locationOption = AMapLocationClientOption()
         locationOption!!.locationMode = AMapLocationMode.Hight_Accuracy
@@ -91,7 +109,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun privacyCompliance() {
-        MapsInitializer.updatePrivacyShow(this, true, true)
+     /*   MapsInitializer.updatePrivacyShow(this, true, true)
         val spannable =
             SpannableStringBuilder("Dear user, thank you for your trust in XXX! According to the latest regulatory requirements, we have updated the Privacy Policy of XXX, and hereby explain the following:\n1. In order to provide you with basic transaction-related functions, we may collect and use necessary information;\n2. With your explicit authorization, we may obtain information such as your location (to provide you with information about nearby products, stores and promotions), and you have the right to refuse or cancel authorization;\n3. We will take advanced security measures in the industry to protect the security of your information;\n4. Without your consent, we will not obtain, share or provide your information from third parties;\n")
         spannable.setSpan(
@@ -114,12 +132,13 @@ class MainActivity : ComponentActivity() {
                     false
                 )
             }
-            .show()
+            .show()*/
     }
 
     private fun initLocation() {
         try {
             locationClient = AMapLocationClient(this.applicationContext)
+
             //设置定位参数
             locationClient!!.setLocationOption(locationOption)
             // 设置定位监听

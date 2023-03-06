@@ -50,9 +50,11 @@
         android:theme="@style/Theme.GpsTracker"
         tools:targetApi="31">
 
+        <!--d088acde016eb5c22a690b3d50337f31-->
+        <!--07a340ce295902dd678c27624e05028a-->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="d088acde016eb5c22a690b3d50337f31"></meta-data>
+            android:value="07a340ce295902dd678c27624e05028a"></meta-data>
 
         <service
             android:name="com.amap.api.location.APSService"
