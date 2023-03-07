@@ -1,15 +1,10 @@
 package com.example.gpstracker
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,20 +19,23 @@ import com.example.gpstracker.screens.LocationTrackingScreen
 import com.example.gpstracker.utils.Constant.REQUEST_CODE_LOCATION_SETTINGS
 import com.example.gpstracker.utils.LocationItem
 import com.example.gpstracker.utils.formatUTC
+import com.example.gpstracker.utils.sHA1
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class MainActivity : ComponentActivity() {
     private var locationList = mutableStateListOf<LocationItem>()
     private var statusState = mutableStateOf("")
     private var logs = mutableStateListOf<String>()
 
-    //private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var locationClient: AMapLocationClient? = null
     private var locationOption: AMapLocationClientOption? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        logs.add("Sha1-> ${sHA1(this)}")
 
         // Update the privacy policy
         AMapLocationClient.updatePrivacyShow(applicationContext, true, true)
@@ -45,22 +43,6 @@ class MainActivity : ComponentActivity() {
 
         // Create a new AMapLocationClient instance
         locationClient = AMapLocationClient(this)
-
-
-
-        /*// Set the AMapLocationClientOption parameters
-        val locationOption = AMapLocationClientOption()
-        locationOption.locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
-        locationOption.isOnceLocation = true
-        locationClient!!.setLocationOption(locationOption)
-
-
-        locationClient!!.setLocationListener(locationListener)
-        // Start location updates
-        locationClient!!.startLocation()*/
-        //Todo
-        /*MapsInitializer.updatePrivacyShow(this, true, true)
-        MapsInitializer.updatePrivacyAgree(this, true)*/
 
         locationOption = AMapLocationClientOption()
         locationOption!!.locationMode = AMapLocationMode.Hight_Accuracy
@@ -146,6 +128,7 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
             logs.add(e.message.toString())
+
         }
     }
 
@@ -242,6 +225,7 @@ class MainActivity : ComponentActivity() {
 
                     logs.add(result)
 
+
                 }
                 sb.append("***Location quality report***").append("\n")
                 sb.append("* WIFI switch: ")
@@ -274,6 +258,7 @@ class MainActivity : ComponentActivity() {
                 val result = sb.toString()
 
                 logs.add(result)
+
 
             } else {
                 logs.add("Location failed, loc is null")
