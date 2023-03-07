@@ -20,8 +20,18 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file('C:/Users/heroi/.android/app_release.keystore')
+            storePassword '123456'
+            keyAlias 'myalias'
+            keyPassword '123456'
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -44,6 +54,7 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+
 }
 
 dependencies {
