@@ -145,7 +145,6 @@ fun LocationTrackingScreen(
                 } else {
                     logs.add("-->Start observing location")
                     onRequestGps()
-                    startObservingLocation()
                     isLocationObserverStarted = true
                 }
             }

@@ -2,9 +2,10 @@ package com.example.gpstracker
 
 import android.content.Context
 import android.content.Intent
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,105 +13,93 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.example.gpstracker.screens.LocationTrackingScreen
 import com.example.gpstracker.utils.Constant.REQUEST_CODE_LOCATION_SETTINGS
+import com.example.gpstracker.utils.LocationCollector
 import com.example.gpstracker.utils.LocationItem
 import com.example.gpstracker.utils.requestLocationPermission
-import com.huawei.hms.location.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var locationCollector: LocationCollector
+
     private var locationList = mutableStateListOf<LocationItem>()
     private var statusState = mutableStateOf("")
     private var logs = mutableStateListOf<String>()
 
-    private lateinit var fusedLocationProviderClient:FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        locationCollector = LocationCollector(
+            logs = logs,
+            context = this,
+            locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    val locationInfo =
+                        "LatLng-> ${location.latitude} - ${location.longitude}" + "\n" +
+                                "Speed-> ${location.speed}" + "\n" +
+                                "Altitude-> ${location.altitude}" + "\n" +
+                                "Accuracy-> ${location.accuracy} - ${location.longitude}"
+
+                    locationList.add(
+                        LocationItem(
+                            time = convertLongToTime(location.time),
+                            locationInfo = locationInfo
+                        )
+                    )
+                    logs.add("onLocationChanged->${location.latitude}-${location.longitude}")
+                }
+
+                override fun onProviderEnabled(provider: String) {
+                    logs.add("onProviderEnabled $provider")
+                }
+
+                override fun onProviderDisabled(provider: String) {
+                    logs.add("onProviderDisabled $provider")
+                }
+
+                override fun onStatusChanged(
+                    provider: String?,
+                    status: Int,
+                    extras: Bundle?
+                ) {
+                    provider?.let {
+                        logs.add("provider-> $it status-> $status extras-> $extras")
+                    }
+                }
+            }
+        )
 
         setContent {
 
+
             LocationTrackingScreen(locationList = locationList, startObservingLocation = {
-                startLocationUpdates()
+                locationCollector.start()
             }, stopObservingLocation = {
-                stopLocationUpdates()
-                                       },
+                locationCollector.stop()
+            },
                 status = statusState,
-                logs = logs
-                ,
+                logs = logs,
                 onRequestGps = {
 
                     val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
                     if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        startLocationUpdates()
+                        locationCollector.start()
                         logs.add("Gps available")
                     } else {
-                        // GPS is still not enabled, show an error message or exit the app
                         logs.add("Gps not provided")
                         requestLocationSettings()
                     }
-                })
+                }
+            )
         }
-    }
-
-
-    private fun startLocationUpdates() {
-
-        val locationRequest = LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(500)
-            .setFastestInterval(500)
-
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult?) {
-            if(locationResult==null){
-                logs.add("locationResult is empty")
-            }
-            locationResult ?: return
-            for (location in locationResult.locations) {
-
-                // Update the UI with the location data
-                val locationInfo =
-                    "LatLng-> ${location.latitude} - ${location.longitude}" + "\n" +
-                            "Speed-> ${location.speed}" + "\n" +
-                            "Altitude-> ${location.altitude}" + "\n" +
-                            "Accuracy-> ${location.accuracy} - ${location.longitude}"
-
-                locationList.add(
-                    LocationItem(
-                        time = convertLongToTime(location.time),
-                        locationInfo = locationInfo
-                    )
-                )
-                logs.add("onLocationChanged->${location.latitude}-${location.longitude}")
-            }
-        }
-
-        override fun onLocationAvailability(p0: LocationAvailability?) {
-            super.onLocationAvailability(p0)
-
-            logs.add("onLocationAvailability->${p0}")
-
-        }
-    }
-
-    private fun stopLocationUpdates(){
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopLocationUpdates()
+        locationCollector.stop()
     }
 
     override fun onResume() {
@@ -136,7 +125,7 @@ class MainActivity : ComponentActivity() {
             // Check if GPS is now enabled and start location updates if it is.
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                startLocationUpdates()
+                locationCollector.start()
                 logs.add("Gps available")
             } else {
                 // GPS is still not enabled, show an error message or exit the app
