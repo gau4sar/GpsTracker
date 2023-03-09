@@ -99,6 +99,13 @@ class MainActivity : ComponentActivity() {
             )
             logs.add("onLocationChanged->${location.latitude}-${location.longitude}")
         }
+
+        override fun onLocationAvailability(p0: LocationAvailability) {
+            super.onLocationAvailability(p0)
+
+
+            logs.add("onLocationAvailability: isLocationAvailable->${p0.isLocationAvailable}")
+        }
     }
 
     private fun stopLocationUpdates() {
