@@ -8,37 +8,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.text.SimpleDateFormat
 import java.util.*
-
-fun sHA1(context: Context): String? {
-    return try {
-        val info = context.packageManager.getPackageInfo(
-            context.packageName, PackageManager.GET_SIGNATURES)
-        val cert = info.signatures[0].toByteArray()
-        val md = MessageDigest.getInstance("SHA1")
-        val publicKey = md.digest(cert)
-        val hexString = StringBuilder()
-        for (i in publicKey.indices) {
-            val appendString = Integer.toHexString(0xFF and publicKey[i].toInt())
-                .toUpperCase(Locale.US)
-            if (appendString.length == 1)
-                hexString.append("0")
-            hexString.append(appendString)
-            hexString.append(":")
-        }
-        val result = hexString.toString()
-        result.substring(0, result.length - 1)
-    } catch (e: PackageManager.NameNotFoundException) {
-        e.printStackTrace()
-        null
-    } catch (e: NoSuchAlgorithmException) {
-        e.printStackTrace()
-        null
-    }
-}
 
 fun requestLocationPermission(context: Context) {
     if (ContextCompat.checkSelfPermission(

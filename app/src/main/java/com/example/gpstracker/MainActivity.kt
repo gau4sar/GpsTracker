@@ -6,7 +6,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateListOf
@@ -14,8 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.example.gpstracker.screens.LocationTrackingScreen
 import com.example.gpstracker.utils.Constant.REQUEST_CODE_LOCATION_SETTINGS
 import com.example.gpstracker.utils.LocationItem
-import com.example.gpstracker.utils.formatUTC
-import com.example.gpstracker.utils.sHA1
+import com.example.gpstracker.utils.requestLocationPermission
 import com.huawei.hms.location.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,8 +28,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        logs.add("Sha1-> ${sHA1(this)}")
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -119,7 +115,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        //requestLocationPermission(this)
+        requestLocationPermission(this)
     }
 
     fun convertLongToTime(time: Long): String {
