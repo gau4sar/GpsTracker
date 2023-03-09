@@ -30,7 +30,6 @@ import com.example.gpstracker.utils.LocationItem
 fun LocationTrackingScreen(
     status: MutableState<String>,
     locationList: SnapshotStateList<LocationItem>,
-    startObservingLocation: () -> Unit,
     stopObservingLocation: () -> Unit,
     onRequestGps: () -> Unit,
     logs: SnapshotStateList<String>
@@ -145,7 +144,6 @@ fun LocationTrackingScreen(
                 } else {
                     logs.add("-->Start observing location")
                     onRequestGps()
-                    startObservingLocation()
                     isLocationObserverStarted = true
                 }
             }
